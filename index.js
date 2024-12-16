@@ -1,6 +1,6 @@
-const CC = require('currency-converter-lt');
-let currencyConverter = new CC({ from: "USD", to: "EUR", amount: 100 });
+var http = require('http');
 
-currencyConverter.convert().then((response) => {
-    console.log(`Result: ${response}`);
-});
+http.createServer(function (req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World!');
+}).listen(7755);
