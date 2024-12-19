@@ -1,6 +1,6 @@
 const express = require("express");
 const QRCode = require("qrcode");
-const PORT = 3000;
+const PORT = 2727;
 const app = express();
 
 app.get("/", (req, res) => {

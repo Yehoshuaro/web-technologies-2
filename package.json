@@ -11,6 +11,7 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "cowsay": "^1.6.0",
     "currency-converter-lt": "^2.0.1",
     "express": "^4.21.2",
     "qrcode": "^1.5.4"
