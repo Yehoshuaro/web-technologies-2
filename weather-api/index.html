@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Weather App</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    input {
+      padding: 10px;
+      width: 200px;
+    }
+
+    button {
+      padding: 10px 20px;
+      margin-left: 5px;
+    }
+
+    #weather {
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+<h1>Weather App</h1>
+<form action="/weather" method="get">
+  <input type="text" name="city" placeholder="Enter city name" required>
+  <button type="submit">Get Weather</button>
+</form>
+
+<div id="weather">
+  <p>Enter a city name to get weather data!</p>
+</div>
+</body>
+</html>
