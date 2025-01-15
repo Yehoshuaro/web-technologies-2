@@ -19,7 +19,7 @@ app.get("/weather", async (req, res) => {
         return res.status(400).send("City is required");
     }
 
-    try{
+    try {
         const response = await axios.get(
             `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`
         );
@@ -27,12 +27,21 @@ app.get("/weather", async (req, res) => {
 
         res.json({
             city: data.name,
+            country: data.sys.country,
             temperature: data.main.temp,
+            feels_like: data.main.feels_like,
+            humidity: data.main.humidity,
+            pressure: data.main.pressure,
+            wind_speed: data.wind.speed,
+            coordinates: {
+                lat: data.coord.lat,
+                lon: data.coord.lon,
+            },
             description: data.weather[0].description,
+            icon: `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`,
         });
-    }
-    catch (error) {
-        res.status(500).send("Error with fetching weather data");
+    } catch (error) {
+        res.status(500).send("Error fetching weather data");
     }
 });
 
