@@ -15,7 +15,7 @@ app.get("/", (req, res) => {
 app.get("/weather", async (req, res) => {
     const city = req.query.city;
 
-    if (!city){
+    if (!city) {
         return res.status(400).send("City is required");
     }
 
@@ -40,7 +40,8 @@ app.get("/weather", async (req, res) => {
             description: data.weather[0].description,
             icon: `https://openweathermap.org/img/wn/${data.weather[0].icon}.png`,
         });
-    } catch (error) {
+    }
+    catch (error) {
         res.status(500).send("Error fetching weather data");
     }
 });
