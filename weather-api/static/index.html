@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,11 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Weather & Timezone App</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 </head>
 <body class="bg-light">
 <div class="container py-5">
     <h1 class="text-center mb-4">Weather & Timezone App</h1>
-
     <center> <h3>Get Weather Information</h3></center>
     <form id="weatherForm" class="d-flex justify-content-center mb-3">
         <input
@@ -23,22 +24,21 @@
         <button type="submit" class="btn btn-primary">Get Weather</button>
     </form>
     <div id="weather" class="text-center">
-        <p>Enter a city name to get weather data</p>
+        <p>Enter a city name</p>
     </div>
-
     <center><h3>Get Current Time in a City</h3></center>
     <form id="timezoneForm" class="d-flex justify-content-center mb-3">
         <input
                 type="text"
                 id="timezoneInput"
                 class="form-control w-50 me-2"
-                placeholder="Enter city name (e.g., London)"
+                placeholder="Enter city name"
                 required
         />
-        <button type="submit" class="btn btn-secondary">Get Time</button>
+        <button type="submit" class="btn btn-primary">Get Time</button>
     </form>
     <div id="timezone" class="text-center">
-        <p>Enter a city name to get the current time</p>
+        <p>Enter a city name</p>
     </div>
 </div>
 
@@ -51,11 +51,13 @@
             placeholder="Enter city name"
             required
     />
-    <button type="submit" class="btn btn-success">Get Air Quality</button>
+    <button type="submit" class="btn btn-primary">Get Air Quality</button>
 </form>
 <div id="airQuality" class="text-center">
-    <p>Enter a city name to get air quality data</p>
+    <p>Enter a city name</p>
 </div>
+
+<div id="map" style="height: 400px;"></div>
 
 <script>
     document.getElementById("weatherForm").addEventListener("submit", async (e) => {
@@ -94,11 +96,9 @@
     document.getElementById("timezoneForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const city = document.getElementById("timezoneInput").value;
-
         try {
             const response = await fetch(`/timezone?city=${city}`);
             const data = await response.json();
-
             if (response.ok) {
                 document.getElementById("timezone").innerHTML = `
                     <div class="alert alert-info">
@@ -117,11 +117,9 @@
     document.getElementById("airQualityForm").addEventListener("submit", async (e) => {
         e.preventDefault();
         const city = document.getElementById("airQualityInput").value;
-
         try {
             const response = await fetch(`/air-quality?city=${city}`);
             const data = await response.json();
-
             if (response.ok) {
                 document.getElementById("airQuality").innerHTML = `
                 <div class="alert alert-success">
@@ -141,6 +139,62 @@
         }
     });
 
+    let map;
+    document.getElementById("weatherForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const city = document.getElementById("cityInput").value;
+
+        try {
+            const response = await fetch(`/weather?city=${city}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById("weather").innerHTML = `
+                        <div class="card mx-auto" style="width: 18rem;">
+                            <img src="${data.icon}" class="card-img-top" alt="Weather Icon">
+                            <div class="card-body">
+                                <h5 class="card-title">${data.city}, ${data.country}</h5>
+                                <p class="card-text">
+                                    <strong>Temperature:</strong> ${data.temperature}°C<br>
+                                    <strong>Feels Like:</strong> ${data.feels_like}°C<br>
+                                    <strong>Description:</strong> ${data.description}<br>
+                                    <strong>Humidity:</strong> ${data.humidity}%<br>
+                                    <strong>Pressure:</strong> ${data.pressure} hPa<br>
+                                    <strong>Wind Speed:</strong> ${data.wind_speed} m/s<br>
+                                    <strong>Coordinates:</strong> [${data.coordinates.lat}, ${data.coordinates.lon}]
+                                </p>
+                            </div>
+                        </div>`;
+
+                const lat = data.coordinates.lat;
+                const lon = data.coordinates.lon;
+
+                if (!map) {
+                    map = L.map('map').setView([lat, lon], 10);
+                    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                        attribution: '&copy; OpenStreetMap contributors'
+                    }).addTo(map);
+                }
+                else {
+                    map.setView([lat, lon], 10);
+                }
+
+                map.eachLayer((layer) => {
+                    if (layer instanceof L.Marker) {
+                        map.removeLayer(layer);
+                    }
+                });
+
+                L.marker([lat, lon]).addTo(map)
+                    .bindPopup(`<b>${data.city}</b><br>Temperature: ${data.temperature}°C`)
+                    .openPopup();
+            } else {
+                document.getElementById("weather").innerHTML = `<p class="text-danger">${data.error}</p>`;
+            }
+        } catch (err) {
+            document.getElementById("weather").innerHTML = `<p class="text-danger">Error fetching data</p>`;
+        }
+    });
 </script>
 </body>
 </html>
