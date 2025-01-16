@@ -1,14 +1,17 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+    <title>Weather & Timezone App</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body class="bg-light">
 <div class="container py-5">
-    <h1 class="text-center mb-4">Weather App</h1>
+    <h1 class="text-center mb-4">Weather & Timezone App</h1>
+
+    <center> <h3>Get Weather Information</h3></center>
     <form id="weatherForm" class="d-flex justify-content-center mb-3">
         <input
                 type="text"
@@ -22,8 +25,37 @@
     <div id="weather" class="text-center">
         <p>Enter a city name to get weather data</p>
     </div>
+
+    <center><h3>Get Current Time in a City</h3></center>
+    <form id="timezoneForm" class="d-flex justify-content-center mb-3">
+        <input
+                type="text"
+                id="timezoneInput"
+                class="form-control w-50 me-2"
+                placeholder="Enter city name (e.g., London)"
+                required
+        />
+        <button type="submit" class="btn btn-secondary">Get Time</button>
+    </form>
+    <div id="timezone" class="text-center">
+        <p>Enter a city name to get the current time</p>
+    </div>
 </div>
 
+<center><h3>Get Air Quality Information</h3></center>
+<form id="airQualityForm" class="d-flex justify-content-center mb-3">
+    <input
+            type="text"
+            id="airQualityInput"
+            class="form-control w-50 me-2"
+            placeholder="Enter city name"
+            required
+    />
+    <button type="submit" class="btn btn-success">Get Air Quality</button>
+</form>
+<div id="airQuality" class="text-center">
+    <p>Enter a city name to get air quality data</p>
+</div>
 
 <script>
     document.getElementById("weatherForm").addEventListener("submit", async (e) => {
@@ -35,7 +67,7 @@
             const data = await response.json();
 
             if (response.ok) {
-                document.getElementById('weather').innerHTML = `
+                document.getElementById("weather").innerHTML = `
                     <div class="card mx-auto" style="width: 18rem;">
                         <img src="${data.icon}" class="card-img-top" alt="Weather Icon">
                         <div class="card-body">
@@ -52,12 +84,63 @@
                         </div>
                     </div>`;
             } else {
-                document.getElementById("weather").innerHTML = `<p class="text-danger">${data}</p>`;
+                document.getElementById("weather").innerHTML = `<p class="text-danger">${data.error}</p>`;
             }
         } catch (err) {
             document.getElementById("weather").innerHTML = `<p class="text-danger">Error fetching data</p>`;
         }
     });
+
+    document.getElementById("timezoneForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const city = document.getElementById("timezoneInput").value;
+
+        try {
+            const response = await fetch(`/timezone?city=${city}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById("timezone").innerHTML = `
+                    <div class="alert alert-info">
+                        <h5>City: ${data.city}</h5>
+                        <p><strong>Time Zone:</strong> ${data.time_zone}</p>
+                        <p><strong>Current Time:</strong> ${data.current_time}</p>
+                    </div>`;
+            } else {
+                document.getElementById("timezone").innerHTML = `<p class="text-danger">${data.error}</p>`;
+            }
+        } catch (err) {
+            document.getElementById("timezone").innerHTML = `<p class="text-danger">Error fetching timezone data</p>`;
+        }
+    });
+
+    document.getElementById("airQualityForm").addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const city = document.getElementById("airQualityInput").value;
+
+        try {
+            const response = await fetch(`/air-quality?city=${city}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                document.getElementById("airQuality").innerHTML = `
+                <div class="alert alert-success">
+                    <h5>City: ${data.city}</h5>
+                    <p><strong>Air Quality Index (AQI):</strong> ${data.air_quality.aqi}</p>
+                    <p><strong>PM2.5:</strong> ${data.air_quality.pm2_5} μg/m³</p>
+                    <p><strong>PM10:</strong> ${data.air_quality.pm10} μg/m³</p>
+                    <p><strong>NO2:</strong> ${data.air_quality.no2} μg/m³</p>
+                    <p><strong>O3:</strong> ${data.air_quality.o3} μg/m³</p>
+                    <p><strong>CO:</strong> ${data.air_quality.co} μg/m³</p>
+                </div>`;
+            } else {
+                document.getElementById("airQuality").innerHTML = `<p class="text-danger">${data.error}</p>`;
+            }
+        } catch (err) {
+            document.getElementById("airQuality").innerHTML = `<p class="text-danger">Error fetching air quality data</p>`;
+        }
+    });
+
 </script>
 </body>
 </html>
